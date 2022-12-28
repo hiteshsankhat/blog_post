@@ -1,8 +1,4 @@
-from typing import Union
-
-from fastapi import Cookie, Depends, FastAPI
-
-from src import oauth
+from fastapi import FastAPI
 
 from .api.api import router
 
