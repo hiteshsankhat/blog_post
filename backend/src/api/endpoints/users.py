@@ -1,8 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.exc import IntegrityError
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
-
-from src import models, oauth, utils
+from src import oauth
 from src.db.database import get_db
 from src.schemas import UserCreate, UserOut
 from src.services import user as user_service
@@ -10,19 +8,11 @@ from src.services import user as user_service
 router: APIRouter = APIRouter(prefix="/users", tags=["User"])
 
 
-@router.post("/create-user", status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/create-user", status_code=status.HTTP_201_CREATED, response_model=UserOut
+)
 async def create_user(user: UserCreate, db: Session = Depends(get_db)):
-    user.password = utils.hash(user.password)
-    new_user = models.User(**user.dict())
-    try:
-        db.add(new_user)
-        db.commit()
-    except IntegrityError:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT, detail="user already exists"
-        )
-    db.refresh(new_user)
-    return new_user
+    return user_service.create_new_user(user, db)
 
 
 @router.get("/me", response_model=UserOut)
