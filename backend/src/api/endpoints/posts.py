@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Dict, List, Optional, Union
 
 from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy.orm import Session
@@ -9,7 +9,11 @@ from src.services import post as post_service
 router = APIRouter(prefix="/posts", tags=["Blog Posts"])
 
 
-@router.get("/", response_model=List[schemas.PostOut], status_code=status.HTTP_200_OK)
+@router.get(
+    "/",
+    response_model=List[Dict[str, Union[schemas.PostOut, int]]],
+    status_code=status.HTTP_200_OK,
+)
 async def get_all_post(
     limit: int = 10, skip: Optional[int] = None, db: Session = Depends(get_db)
 ):

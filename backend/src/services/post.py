@@ -1,14 +1,21 @@
-from typing import List, Optional, Union
+from typing import List, Optional, Tuple, Union
 
 from fastapi import HTTPException, status
+from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-
 from src import models, schemas
 
 
-def get_all_post(db: Session, limit: int, skip: Optional[int]) -> List[models.Post]:
-    posts = db.query(models.Post).limit(limit).offset(skip).all()
+def get_all_post(db: Session, limit: int, skip: Optional[int]):
+    posts = (
+        db.query(models.Post, func.count(models.Like.post_id).label("likes"))
+        .join(models.Like, models.Post.id == models.Like.post_id, isouter=True)
+        .group_by(models.Post.id)
+        .limit(limit)
+        .offset(skip)
+        .all()
+    )
     return posts
 
 
