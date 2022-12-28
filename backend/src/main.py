@@ -1,4 +1,8 @@
-from fastapi import FastAPI
+from typing import Union
+
+from fastapi import Cookie, Depends, FastAPI
+
+from src import oauth
 
 from .api.api import router
 
@@ -9,4 +13,4 @@ app.include_router(router)
 
 @app.get("/")
 def root():
-    return "hello world"
+    return "Hello World"
