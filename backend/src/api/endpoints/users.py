@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from src import models, oauth, utils
 from src.db.database import get_db
-from src.schemas.user import UserBase, UserCreate
+from src.schemas import UserCreate, UserOut
+from src.services import user as user_service
 
 router: APIRouter = APIRouter(prefix="/users", tags=["User"])
 
@@ -22,3 +23,15 @@ async def create_user(user: UserCreate, db: Session = Depends(get_db)):
         )
     db.refresh(new_user)
     return new_user
+
+
+@router.get("/me", response_model=UserOut)
+def get_current_user(
+    user_id: int = Depends(oauth.get_current_user), db: Session = Depends(get_db)
+):
+    return user_service.get_user_by_id(user_id, db)
+
+
+@router.get("/{id}", response_model=UserOut)
+def get_user(id: int, db: Session = Depends(get_db)):
+    return user_service.get_user_by_id(id, db)

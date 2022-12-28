@@ -13,3 +13,11 @@ class UserCreate(UserBase):
 
     class Config:
         orm_mode = True
+
+
+class UserOut(BaseModel):
+    id: int
+    email: EmailStr
+
+    class Config:
+        orm_mode = True
